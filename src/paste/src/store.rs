@@ -10,17 +10,12 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 use std::error::Error;
 
 use rusqlite::Connection;
-use serde::Serialize;
 
-#[derive(Serialize)]
-pub struct Pastebin {
-    id: i64,
-    pub content: String,
-}
+use crate::paste::Pastebin;
 
 fn get_connection() -> Result<Connection, Box<dyn Error>> {
     let c = Connection::open("pastebin.db")?;
-    
+
     Ok(c)
 }
 

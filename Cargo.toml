@@ -1,11 +1,11 @@
-[package]
-name = "pastebin"
-version = "0.1.0"
-edition = "2021"
+[workspace]
+resolver = "2"
+members = [
+    "src/paste",
+    "src/pastebin"
+]
 
-# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
-
-[dependencies]
+[workspace.dependencies]
 actix-web = "4.4.1"
 rusqlite = { version = "0.30.0", features = ["bundled"] }
 serde = { version = "1.0.195", features = ["derive"] }

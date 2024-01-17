@@ -115,7 +115,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "3b894941f818cfdc7ccc4b9e60fa7e53b5042a2e8567270f9147d5591893373a"
 dependencies = [
  "futures-core",
- "paste",
+ "paste 1.0.14",
  "pin-project-lite",
 ]
 
@@ -755,10 +755,20 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "de3145af08024dea9fa9914f381a17b8fc6034dfb00f3a84013f7ff43f29ed4c"
 
 [[package]]
-name = "pastebin"
-version = "0.1.0"
+name = "paste"
+version = "24.20.117"
 dependencies = [
  "actix-web",
+ "rusqlite",
+ "serde",
+]
+
+[[package]]
+name = "pastebin"
+version = "24.20.117"
+dependencies = [
+ "actix-web",
+ "paste 24.20.117",
  "rusqlite",
  "serde",
 ]

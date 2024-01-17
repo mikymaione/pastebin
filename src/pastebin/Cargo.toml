@@ -1,0 +1,13 @@
+[package]
+name = "pastebin"
+version = "24.20.117"
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+actix-web.workspace = true
+rusqlite.workspace = true
+serde.workspace = true
+
+paste = { path = "../paste" }
