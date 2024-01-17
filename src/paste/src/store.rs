@@ -12,63 +12,74 @@ use rusqlite::Connection;
 
 use crate::paste::Pastebin;
 
-fn get_connection() -> Result<Connection> {
-    let c = Connection::open("pastebin.db")?;
-
-    Ok(c)
+pub struct PastebinStore {
+    connection: Connection,
 }
 
-pub fn pastebin_create_table() -> Result<usize> {
-    let conn = get_connection().unwrap();
+impl PastebinStore {
+    pub fn new(in_memory: bool) -> Result<Self> {
+        Ok(
+            Self {
+                connection: if in_memory {
+                    Connection::open_in_memory()?
+                } else {
+                    Connection::open("pastebin.db")?
+                }
+            }
+        )
+    }
 
-    let i = conn.execute(
-        "create table if not exists pastebin (
+    pub fn pastebin_create_table(&self) -> Result<usize> {
+        let i = self.connection.execute(
+            "create table if not exists pastebin (
             id integer primary key,
             content text
         )",
-        [],
-    )?;
+            [],
+        )?;
 
-    Ok(i)
-}
+        Ok(i)
+    }
 
-pub fn pastebin_get(id: i64) -> Result<Pastebin> {
-    let conn = get_connection()?;
+    pub fn pastebin_get(&self, id: i64) -> Result<Option<Pastebin>> {
+        let mut stmt = self.connection.prepare(
+            "SELECT id, content FROM pastebin WHERE id = ?1"
+        )?;
 
-    let mut stmt = conn.prepare(
-        "SELECT id, content FROM pastebin WHERE id = ?1"
-    )?;
+        let mut rows = stmt.query_map([id], |row|
+            Ok(
+                Pastebin {
+                    id: row.get(0)?,
+                    content: row.get(1)?,
+                }
+            ),
+        )?;
 
-    let mut rows = stmt.query_map([id], |row| {
-        Ok(
-            Pastebin {
-                id: row.get(0)?,
-                content: row.get(1)?,
-            }
-        )
-    })?;
+        let maybe_row = rows
+            .next()
+            .map_or(
+                Ok(None),
+                |v| v.map(Some),
+            );
 
-    Ok(rows.next().unwrap().unwrap())
-}
+        Ok(maybe_row?)
+    }
 
-pub fn pastebin_set(req_body: String) -> Result<i64> {
-    let conn = get_connection()?;
+    pub fn pastebin_set(&self, req_body: String) -> Result<i64> {
+        self.connection.execute(
+            "INSERT INTO pastebin (content) VALUES (?1)",
+            [req_body],
+        )?;
 
-    conn.execute(
-        "INSERT INTO pastebin (content) VALUES (?1)",
-        [req_body],
-    )?;
+        Ok(self.connection.last_insert_rowid())
+    }
 
-    Ok(conn.last_insert_rowid())
-}
+    pub fn pastebin_delete(&self, id: i64) -> Result<bool> {
+        let r = self.connection.execute(
+            "DELETE FROM pastebin WHERE id = ?1",
+            [id],
+        )?;
 
-pub fn pastebin_delete(id: i64) -> Result<bool> {
-    let conn = get_connection()?;
-
-    let r = conn.execute(
-        "DELETE FROM pastebin WHERE id = ?1",
-        [id],
-    )?;
-
-    Ok(r > 0)
+        Ok(r > 0)
+    }
 }

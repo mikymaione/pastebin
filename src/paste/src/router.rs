@@ -10,20 +10,27 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 use actix_web::{App, delete, get, HttpServer, post, Responder, Result, web};
 use actix_web::error::ErrorConflict;
 
-use crate::store::{pastebin_delete, pastebin_get, pastebin_set};
+use crate::store::PastebinStore;
 
 #[get("/{id}")]
 async fn get_paste(id: web::Path<i64>) -> Result<impl Responder> {
-    let pastebin = pastebin_get(id.into_inner())
+    let store = PastebinStore::new(false)
+        .map_err(ErrorConflict)?;
+    let maybe_pastebin = store.pastebin_get(id.into_inner())
         .map_err(ErrorConflict)?;
 
-    let content = pastebin.content;
-    Ok(format!("{content}"))
+    let maybe_content = maybe_pastebin
+        .map(|p| p.content)
+        .unwrap_or(String::from(""));
+
+    Ok(format!("{maybe_content}"))
 }
 
 #[post("/")]
 async fn set_paste(req_body: String) -> Result<impl Responder> {
-    let id = pastebin_set(req_body)
+    let store = PastebinStore::new(false)
+        .map_err(ErrorConflict)?;
+    let id = store.pastebin_set(req_body)
         .map_err(ErrorConflict)?;
 
     Ok(format!("{id}"))
@@ -31,7 +38,9 @@ async fn set_paste(req_body: String) -> Result<impl Responder> {
 
 #[delete("/{id}")]
 async fn delete_paste(id: web::Path<i64>) -> Result<impl Responder> {
-    let deleted = pastebin_delete(id.into_inner())
+    let store = PastebinStore::new(false)
+        .map_err(ErrorConflict)?;
+    let deleted = store.pastebin_delete(id.into_inner())
         .map_err(ErrorConflict)?;
 
     Ok(format!("{deleted}"))

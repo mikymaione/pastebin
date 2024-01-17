@@ -9,6 +9,7 @@
       <sourceFolder url="file://$MODULE_DIR$/src/pastebin/src" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/src/routes/src" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/src/starter/src" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/src/paste/tests" isTestSource="true" />
       <excludeFolder url="file://$MODULE_DIR$/target" />
     </content>
     <orderEntry type="inheritedJdk" />
