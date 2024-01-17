@@ -9,20 +9,20 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 */
 extern crate paste;
 
+use anyhow::{Error, Result};
+
 use paste::router::run_server;
 use paste::store::pastebin_create_table;
 
 #[actix_web::main]
-async fn main() -> std::io::Result<()> {
+async fn main() -> Result<()> {
     println!("Welcome to pastebin by [MAIONE MIKY]");
 
-    match pastebin_create_table() {
-        Err(_e) =>
-            panic!("Can not update DB: {_e}"),
-        Ok(i) =>
-            println!("Updated {i} DB table"),
-    }
+    pastebin_create_table()
+        .map(|i| println!("Updated {i} DB table"))
+        .map_err(|e| Error::msg(format!("{e}")))?;
 
-    println!("Starting server...");
     run_server().await
+        .map(|_| println!("Server shutdown"))
+        .map_err(|e| Error::msg(format!("{e}")))
 }
