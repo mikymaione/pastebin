@@ -7,5 +7,6 @@ edition = "2021"
 
 [dependencies]
 actix-web.workspace = true
+anyhow.workspace = true
 rusqlite.workspace = true
 serde.workspace = true

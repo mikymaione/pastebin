@@ -9,7 +9,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 */
 extern crate paste;
 
-use anyhow::{Error, Result};
+use anyhow::Result;
 
 use paste::router::run_server;
 use paste::store::pastebin_create_table;
@@ -17,12 +17,6 @@ use paste::store::pastebin_create_table;
 #[actix_web::main]
 async fn main() -> Result<()> {
     println!("Welcome to pastebin by [MAIONE MIKY]");
-
-    pastebin_create_table()
-        .map(|i| println!("Updated {i} DB table"))
-        .map_err(|e| Error::msg(format!("{e}")))?;
-
+    pastebin_create_table()?;
     run_server().await
-        .map(|_| println!("Server shutdown"))
-        .map_err(|e| Error::msg(format!("{e}")))
 }

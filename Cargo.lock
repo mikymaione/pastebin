@@ -765,6 +765,7 @@ name = "paste"
 version = "24.20.117"
 dependencies = [
  "actix-web",
+ "anyhow",
  "rusqlite",
  "serde",
 ]
