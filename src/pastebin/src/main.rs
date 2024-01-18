@@ -12,11 +12,9 @@ extern crate paste;
 use anyhow::Result;
 
 use paste::router::run_server;
-use paste::store::pastebin_create_table;
 
 #[actix_web::main]
 async fn main() -> Result<()> {
     println!("Welcome to pastebin by [MAIONE MIKY]");
-    pastebin_create_table()?;
     run_server().await
 }

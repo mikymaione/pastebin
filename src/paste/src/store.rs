@@ -18,23 +18,25 @@ pub struct PastebinStore {
 
 impl PastebinStore {
     pub fn new(in_memory: bool) -> Result<Self> {
-        Ok(
-            Self {
-                connection: if in_memory {
-                    Connection::open_in_memory()?
-                } else {
-                    Connection::open("pastebin.db")?
-                }
+        let me = Self {
+            connection: if in_memory {
+                Connection::open_in_memory()?
+            } else {
+                Connection::open("data/pastebin.db")?
             }
-        )
+        };
+
+        me.pastebin_create_table()?;
+
+        Ok(me)
     }
 
-    pub fn pastebin_create_table(&self) -> Result<usize> {
+    fn pastebin_create_table(&self) -> Result<usize> {
         let i = self.connection.execute(
-            "create table if not exists pastebin (
-            id integer primary key,
-            content text
-        )",
+            "CREATE TABLE IF NOT EXISTS pastebin (
+                id INTEGER PRIMARY KEY,
+                content TEXT
+            )",
             [],
         )?;
 
@@ -43,7 +45,13 @@ impl PastebinStore {
 
     pub fn pastebin_get(&self, id: i64) -> Result<Option<Pastebin>> {
         let mut stmt = self.connection.prepare(
-            "SELECT id, content FROM pastebin WHERE id = ?1"
+            "SELECT
+                id,
+                content
+            FROM pastebin
+            WHERE
+                id = ?1
+            "
         )?;
 
         let mut rows = stmt.query_map([id], |row|
@@ -59,15 +67,20 @@ impl PastebinStore {
             .next()
             .map_or(
                 Ok(None),
-                |v| v.map(Some),
-            );
+                |p| p.map(Some),
+            )?;
 
-        Ok(maybe_row?)
+        Ok(maybe_row)
     }
 
     pub fn pastebin_set(&self, req_body: String) -> Result<i64> {
         self.connection.execute(
-            "INSERT INTO pastebin (content) VALUES (?1)",
+            "INSERT INTO pastebin (
+                content
+            ) VALUES (
+                ?1
+            )
+            ",
             [req_body],
         )?;
 
@@ -76,7 +89,9 @@ impl PastebinStore {
 
     pub fn pastebin_delete(&self, id: i64) -> Result<bool> {
         let r = self.connection.execute(
-            "DELETE FROM pastebin WHERE id = ?1",
+            "DELETE FROM pastebin
+            WHERE
+                id = ?1",
             [id],
         )?;
 
