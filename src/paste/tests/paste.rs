@@ -8,22 +8,23 @@ mod tests {
     fn full() -> Result<()> {
         let store = PastebinStore::new(true)?;
 
-        let r = store.pastebin_create_table()?;
-        assert_eq!(r, 0);
-
-        let id = store.pastebin_set(
+        // first element of autoinc is always 1
+        let id = store.add(
             String::from("Ciao mi chiamo Michele Maione"),
         )?;
         assert_eq!(id, 1);
 
-        let p = store.pastebin_get(id)?;
+        // get this paste
+        let p = store.get(id)?;
         assert_eq!(p.is_some(), true);
         assert_eq!(p.unwrap().id, id);
 
-        let deleted = store.pastebin_delete(id)?;
+        // delete this paste
+        let deleted = store.delete(id)?;
         assert_eq!(deleted, true);
 
-        let p = store.pastebin_get(id)?;
+        // check this paste is none
+        let p = store.get(id)?;
         assert_eq!(p.is_none(), true);
 
         Ok(())

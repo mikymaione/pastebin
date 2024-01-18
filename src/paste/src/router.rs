@@ -16,7 +16,7 @@ use crate::store::PastebinStore;
 async fn get_paste(id: web::Path<i64>) -> Result<impl Responder> {
     let store = PastebinStore::new(false)
         .map_err(ErrorConflict)?;
-    let maybe_pastebin = store.pastebin_get(id.into_inner())
+    let maybe_pastebin = store.get(id.into_inner())
         .map_err(ErrorConflict)?;
 
     let maybe_content = maybe_pastebin
@@ -30,7 +30,7 @@ async fn get_paste(id: web::Path<i64>) -> Result<impl Responder> {
 async fn set_paste(req_body: String) -> Result<impl Responder> {
     let store = PastebinStore::new(false)
         .map_err(ErrorConflict)?;
-    let id = store.pastebin_set(req_body)
+    let id = store.add(req_body)
         .map_err(ErrorConflict)?;
 
     Ok(format!("{id}"))
@@ -40,7 +40,7 @@ async fn set_paste(req_body: String) -> Result<impl Responder> {
 async fn delete_paste(id: web::Path<i64>) -> Result<impl Responder> {
     let store = PastebinStore::new(false)
         .map_err(ErrorConflict)?;
-    let deleted = store.pastebin_delete(id.into_inner())
+    let deleted = store.delete(id.into_inner())
         .map_err(ErrorConflict)?;
 
     Ok(format!("{deleted}"))

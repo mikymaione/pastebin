@@ -26,12 +26,12 @@ impl PastebinStore {
             }
         };
 
-        me.pastebin_create_table()?;
+        me.create_table()?;
 
         Ok(me)
     }
 
-    fn pastebin_create_table(&self) -> Result<usize> {
+    fn create_table(&self) -> Result<usize> {
         let i = self.connection.execute(
             "CREATE TABLE IF NOT EXISTS pastebin (
                 id INTEGER PRIMARY KEY,
@@ -43,7 +43,7 @@ impl PastebinStore {
         Ok(i)
     }
 
-    pub fn pastebin_get(&self, id: i64) -> Result<Option<Pastebin>> {
+    pub fn get(&self, id: i64) -> Result<Option<Pastebin>> {
         let mut stmt = self.connection.prepare(
             "SELECT
                 id,
@@ -73,7 +73,7 @@ impl PastebinStore {
         Ok(maybe_row)
     }
 
-    pub fn pastebin_set(&self, req_body: String) -> Result<i64> {
+    pub fn add(&self, req_body: String) -> Result<i64> {
         self.connection.execute(
             "INSERT INTO pastebin (
                 content
@@ -87,7 +87,7 @@ impl PastebinStore {
         Ok(self.connection.last_insert_rowid())
     }
 
-    pub fn pastebin_delete(&self, id: i64) -> Result<bool> {
+    pub fn delete(&self, id: i64) -> Result<bool> {
         let r = self.connection.execute(
             "DELETE FROM pastebin
             WHERE
