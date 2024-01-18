@@ -9,12 +9,22 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 */
 extern crate paste;
 
+use actix_web::{App, HttpServer};
 use anyhow::Result;
 
-use paste::router::run_server;
+use paste::router::service;
+use paste::store::PastebinStore;
 
 #[actix_web::main]
 async fn main() -> Result<()> {
     println!("Welcome to pastebin by [MAIONE MIKY]");
-    run_server().await
+
+    let store = PastebinStore::new(false)?;
+
+    HttpServer::new(|| App::new()
+        .configure(|cfg| service(cfg, store)))
+        .bind(("127.0.0.1", 8080))?
+        .run()
+        .await
+        .map_err(anyhow::Error::from)
 }
